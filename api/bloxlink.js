@@ -1,11 +1,14 @@
-export default async function(req) {
-  const path = new URL(req.url).pathname.replace("/api/bloxlink", "");
+export default async function(request, response) {
+  const path = new URL(request.url).pathname.replace("/api/bloxlink", "");
   const targetUrl = "https://api.bloxlink.com" + path;
-  const res = await fetch(targetUrl, {
-    headers: { "Accept": "application/json" },
-  });
-  return new Response(res.body, {
-    status: res.status,
-    headers: { "Access-Control-Allow-Origin": "*" },
-  });
+  
+  try {
+    const res = await fetch(targetUrl, {
+      headers: { "Accept": "application/json" },
+    });
+    const body = await res.text();
+    response.status(res.status).send(body);
+  } catch (err) {
+    response.status(500).send("Proxy error: " + err.message);
+  }
 }
